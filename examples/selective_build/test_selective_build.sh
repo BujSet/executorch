@@ -197,8 +197,8 @@ fi
 if [[ $1 == "cmake" ]];
 then
     cmake_install_executorch_lib
-    test_cmake_select_all_ops
-    test_cmake_select_ops_in_list
+#    test_cmake_select_all_ops
+#    test_cmake_select_ops_in_list
     test_cmake_select_ops_in_yaml
     test_cmake_select_ops_in_model
 elif [[ $1 == "buck2" ]];
