@@ -53,6 +53,21 @@ function(gen_selected_ops)
     WORKING_DIRECTORY ${EXECUTORCH_ROOT}
   )
 
+    set(_opvariant_h
+      ${CMAKE_CURRENT_BINARY_DIR}/${GEN_LIB_NAME}/selected_op_variants.h
+  )
+  set(_gen_opvariant_command "${PYTHON_EXECUTABLE}" -m codegen.tools.gen_selected_op_variants
+                             --yaml-file-path=${_oplist_yaml}
+  		             --output-dir=${CMAKE_CURRENT_BINARY_DIR}/${GEN_LIB_NAME}/)
+  message("Command - ${_gen_opvariant_command}")
+  add_custom_command(
+    COMMENT "Generating selected_op_variants.h for ${GEN_LIB_NAME}"
+    OUTPUT ${_opvariant_h}
+    COMMAND ${_gen_opvariant_command}
+    DEPENDS ${GEN_OPS_SCHEMA_YAML} ${_codegen_tools_srcs}
+    WORKING_DIRECTORY ${EXECUTORCH_ROOT}
+  )
+
 endfunction()
 
 # Codegen for registering kernels. Kernels are defined in functions_yaml and
