@@ -138,7 +138,7 @@ aten,aten::clone.out" \
     rm "./mv2.pte"
 }
 
-test_cmake_select_ops_add_in_yaml() {
+test_cmake_select_ops_add_in_list() {
     echo "Exporting add_mul"
     ${PYTHON_EXECUTABLE} -m examples.portable.scripts.export --model_name="add_mul"
     local example_dir=examples/selective_build
@@ -199,8 +199,8 @@ then
     cmake_install_executorch_lib
 #    test_cmake_select_all_ops
 #    test_cmake_select_ops_in_list
-#    test_cmake_select_ops_in_yaml
-    test_cmake_select_ops_add_in_yaml
+    test_cmake_select_ops_in_yaml
+#    test_cmake_select_ops_add_in_list
 elif [[ $1 == "buck2" ]];
 then
     test_buck2_select_all_ops
