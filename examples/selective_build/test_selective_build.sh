@@ -191,21 +191,23 @@ test_cmake_select_ops_in_model() {
     local example_dir=examples/selective_build
     local build_dir=cmake-out/${example_dir}
     rm -rf ${build_dir}
-    retry cmake -DCMAKE_BUILD_TYPE=Release \
+    retry cmake -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" \
             -DEXECUTORCH_SELECT_OPS_FROM_MODEL="./mv2.pte" \
+            -DEXECUTORCH_DTYPE_SELECTIVE_BUILD=ON \
+            -DEXECUTORCH_OPTIMIZE_SIZE=ON \
             -DCMAKE_INSTALL_PREFIX=cmake-out \
             -DPYTHON_EXECUTABLE="$PYTHON_EXECUTABLE" \
             -B${build_dir} \
             ${example_dir}
 
     echo "Building ${example_dir}"
-    cmake --build ${build_dir} -j9 --config Release
+    cmake --build ${build_dir} -j9 --config $CMAKE_BUILD_TYPE
 
     echo 'Running selective build test'
     ${build_dir}/selective_build_test --model_path="./mv2.pte"
 
-    echo "Removing mv2.pte"
-    rm "./mv2.pte"
+#    echo "Removing mv2.pte"
+#    rm "./mv2.pte"
 }
 
 if [[ -z $BUCK ]];
@@ -218,14 +220,19 @@ then
   PYTHON_EXECUTABLE=python3
 fi
 
+if [[ -z $CMAKE_BUILD_TYPE ]];
+then
+  CMAKE_BUILD_TYPE=Release
+fi
+
 if [[ $1 == "cmake" ]];
 then
-    cmake_install_executorch_lib
-    test_cmake_select_all_ops
+    cmake_install_executorch_lib $CMAKE_BUILD_TYPE
+#    test_cmake_select_all_ops
 #    test_cmake_select_ops_in_list
 #    test_cmake_select_ops_in_yaml
 #    test_cmake_select_ops_add_in_list
-#    test_cmake_select_ops_in_model
+    test_cmake_select_ops_in_model
 elif [[ $1 == "buck2" ]];
 then
     test_buck2_select_all_ops
