@@ -16,6 +16,7 @@ namespace native {
 
 using executorch::aten::Tensor;
 
+__attribute__((section("kernels_portable_cpu_op_logical_not_out"),aligned(16)))
 Tensor&
 logical_not_out(KernelRuntimeContext& ctx, const Tensor& in, Tensor& out) {
   (void)ctx;
