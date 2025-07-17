@@ -19,6 +19,7 @@ namespace native {
 using Tensor = executorch::aten::Tensor;
 using Scalar = executorch::aten::Scalar;
 
+__attribute__((section("kernels_portable_cpu_op_addmm_out"),aligned(16)))
 Tensor& addmm_out(
     KernelRuntimeContext& ctx,
     const Tensor& in,

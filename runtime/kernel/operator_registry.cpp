@@ -40,7 +40,9 @@ struct alignas(Kernel) KernelBuffer {
 };
 
 // @lint-ignore CLANGTIDY facebook-hte-CArray
-KernelBuffer registered_kernels_data[kMaxRegisteredKernels];
+KernelBuffer __attribute__((
+  section("registered_kernels_data_sec"),
+  aligned(16))) registered_kernels_data[kMaxRegisteredKernels];
 
 /// Global table of registered kernels.
 Kernel* registered_kernels = reinterpret_cast<Kernel*>(registered_kernels_data);

@@ -15,6 +15,7 @@ namespace native {
 
 using Tensor = executorch::aten::Tensor;
 
+__attribute__((section("kernels_portable_cpu_op_bmm_out"),aligned(16)))
 Tensor& bmm_out(
     KernelRuntimeContext& ctx,
     const Tensor& in,
