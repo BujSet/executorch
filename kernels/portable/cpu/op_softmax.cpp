@@ -19,7 +19,6 @@ namespace native {
 
 using Tensor = executorch::aten::Tensor;
 
-__attribute__((section("kernels_portable_cpu_op_softmax_out"),aligned(16)))
 Tensor& softmax_out(
     KernelRuntimeContext& ctx,
     const Tensor& in,

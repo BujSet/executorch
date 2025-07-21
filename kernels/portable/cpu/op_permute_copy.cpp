@@ -37,7 +37,6 @@ void increment_coordinate_permuted(
 
 } // namespace
 
-__attribute__((section("kernels_portable_cpu_op_permute_copy_out"),aligned(16)))
 Tensor& permute_copy_out(
     KernelRuntimeContext& ctx,
     const Tensor& in,

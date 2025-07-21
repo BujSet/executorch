@@ -52,7 +52,6 @@ size_t map_expand_to_repeats(
 }
 } // namespace
 
-__attribute__((section("kernels_portable_cpu_op_expand_copy_out"),aligned(16)))
 Tensor& expand_copy_out(
     KernelRuntimeContext& ctx,
     const Tensor& self,

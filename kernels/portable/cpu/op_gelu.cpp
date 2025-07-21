@@ -21,7 +21,6 @@ using Tensor = executorch::aten::Tensor;
 using ScalarType = executorch::aten::ScalarType;
 using string_view = std::string_view;
 
-__attribute__((section("kernels_portable_cpu_op_gelu_out"),aligned(16)))
 Tensor& gelu_out(
     KernelRuntimeContext& ctx,
     const Tensor& in,

@@ -118,7 +118,6 @@ Tensor& any_dims_out(
   return out;
 }
 
-__attribute__((section("kernels_portable_cpu_op_any_out"),aligned(16)))
 Tensor& any_out(
     KernelRuntimeContext& ctx,
     const Tensor& in,

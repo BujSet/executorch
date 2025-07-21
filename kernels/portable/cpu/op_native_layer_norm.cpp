@@ -98,7 +98,6 @@ void layer_norm(
 // rstd_out) -> (Tensor(a!), Tensor(b!), Tensor(c!))
 // As a reference, there's math_native_layer_norm in ATen:
 // https://www.internalfb.com/code/fbsource/[2da5b17b086554c6cd0c3ab08a35aeec2a8bad8c]/xplat/caffe2/aten/src/ATen/native/layer_norm.cpp?lines=188
-__attribute__((section("kernels_portable_cpu_op_native_layer_norm_out"),aligned(16)))
 std::tuple<Tensor&, Tensor&, Tensor&> native_layer_norm_out(
     KernelRuntimeContext& ctx,
     const Tensor& input,

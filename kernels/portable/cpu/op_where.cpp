@@ -13,7 +13,6 @@ namespace torch {
 namespace executor {
 namespace native {
 
-__attribute__((section("kernels_portable_cpu_op_where_out"),aligned(16)))
 Tensor& where_out(
     KernelRuntimeContext& ctx,
     const Tensor& cond,

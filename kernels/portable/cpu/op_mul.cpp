@@ -15,7 +15,6 @@ namespace torch {
 namespace executor {
 namespace native {
 
-__attribute__((section("kernels_portable_cpu_op_mul_out"),aligned(16)))
 Tensor& mul_out(
     KernelRuntimeContext& ctx,
     const Tensor& a,

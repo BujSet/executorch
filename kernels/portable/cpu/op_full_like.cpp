@@ -17,7 +17,6 @@ namespace native {
 using Tensor = executorch::aten::Tensor;
 using ScalarType = executorch::aten::ScalarType;
 
-__attribute__((section("kernels_portable_cpu_op_full_like_out"),aligned(16)))
 Tensor& full_like_out(
     KernelRuntimeContext& ctx,
     const Tensor& in,

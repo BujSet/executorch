@@ -25,7 +25,6 @@ Tensor& eq_tensor_out(
       ctx, a, b, out);
 }
 
-__attribute__((section("kernels_portable_cpu_op_eq_scalar_out"),aligned(16)))
 Tensor& eq_scalar_out(
     KernelRuntimeContext& ctx,
     const Tensor& a,
