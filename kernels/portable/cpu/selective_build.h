@@ -51,6 +51,8 @@ inline constexpr bool should_include_kernel_dtype(
         && (scalar_type == executorch::aten::ScalarType::Float))
  || ((std::string_view(operator_name).compare("permute_copy.out") == 0)
         && (scalar_type == executorch::aten::ScalarType::Float))
+ || ((std::string_view(operator_name).compare("scalar_tensor.out") == 0)
+        && (scalar_type == executorch::aten::ScalarType::Float))
  || ((std::string_view(operator_name).compare("where.self_out") == 0)
         && (scalar_type == executorch::aten::ScalarType::Bool || scalar_type == executorch::aten::ScalarType::Float));
 }
