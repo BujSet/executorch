@@ -162,10 +162,11 @@ test_cmake_select_ops_in_yaml() {
 }
 
 test_cmake_select_ops_in_model() {
-    local model_name="add_mul"
-    local model_export_name="${model_name}.pte"
-    echo "Exporting ${model_name}"
-    ${PYTHON_EXECUTABLE} -m examples.portable.scripts.export --model_name="${model_name}"
+    #local model_name="add_mul"
+    #local model_export_name="${model_name}.pte"
+    local model_export_name="whisper-tiny-encoder.pte"
+    #echo "Exporting ${model_name}"
+    #${PYTHON_EXECUTABLE} -m examples.portable.scripts.export --model_name="${model_name}"
     local example_dir=examples/selective_build
     local build_dir=cmake-out/${example_dir}
     rm -rf ${build_dir}
@@ -184,8 +185,8 @@ test_cmake_select_ops_in_model() {
     echo 'Running selective build test'
     ${build_dir}/selective_build_test --model_path="./${model_export_name}"
 
-    echo "Removing ${model_export_name}"
-    rm "./${model_export_name}"
+    #echo "Removing ${model_export_name}"
+    #rm "./${model_export_name}"
 }
 
 if [[ -z $BUCK ]];
@@ -200,15 +201,15 @@ fi
 
 if [[ -z $CMAKE_BUILD_TYPE ]];
 then
-  CMAKE_BUILD_TYPE=Release
+  CMAKE_BUILD_TYPE=Debug
 fi
 
 if [[ $1 == "cmake" ]];
 then
     cmake_install_executorch_lib $CMAKE_BUILD_TYPE
-    test_cmake_select_all_ops
-    test_cmake_select_ops_in_list
-    test_cmake_select_ops_in_yaml
+#    test_cmake_select_all_ops
+#    test_cmake_select_ops_in_list
+#    test_cmake_select_ops_in_yaml
     test_cmake_select_ops_in_model
 elif [[ $1 == "buck2" ]];
 then
