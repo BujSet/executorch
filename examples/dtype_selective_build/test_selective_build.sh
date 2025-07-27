@@ -34,12 +34,14 @@ source "$(dirname "${BASH_SOURCE[0]}")/../../.ci/scripts/utils.sh"
 
 # CMake examples; test in OSS. Check the README for more information.
 test_cmake_select_all_ops() {
-    echo "Exporting MobilenetV3"
-    ${PYTHON_EXECUTABLE} -m examples.portable.scripts.export --model_name="mv3"
-
-    local example_dir=examples/selective_build
+    local model_name=$1
+    local model_export_name="${model_name}.pte"
+    echo "Exporting ${model_name}"
+    ${PYTHON_EXECUTABLE} -m examples.portable.scripts.export --model_name="${model_name}"
+    local example_dir=examples/dtype_selective_build
     local build_dir=cmake-out/${example_dir}
     rm -rf ${build_dir}
+    local start_time=`date +%s.%N`
     retry cmake -DCMAKE_BUILD_TYPE=Release \
             -DEXECUTORCH_SELECT_ALL_OPS=ON \
             -DCMAKE_INSTALL_PREFIX=cmake-out \
@@ -49,28 +51,24 @@ test_cmake_select_all_ops() {
 
     echo "Building ${example_dir}"
     cmake --build ${build_dir} -j9 --config Release
-
-    echo 'Running selective build test'
-    ${build_dir}/selective_build_test --model_path="./mv3.pte"
-
-    echo "Removing mv3.pte"
-    rm "./mv3.pte"
+    local end_time=`date +%s.%N`
+    local runtime=$( echo "$end_time-$start_time" | bc -l )
+    
+    strip ${build_dir}/selective_build_test 
+    ls -lah ${build_dir}/selective_build_test
+    local STAT_OUTPUT=$(stat --format=%s ${build_dir}/selective_build_test)
+    echo "${model_name},False,True,OFF,${STAT_OUTPUT},${runtime}" >> results.txt
 }
 
 test_cmake_select_ops_in_list() {
-    echo "Exporting MobilenetV2"
-    ${PYTHON_EXECUTABLE} -m examples.portable.scripts.export --model_name="mv2"
-
-    local example_dir=examples/selective_build
+    local operator_name=$1
+    local example_dir=examples/dtype_selective_build
     local build_dir=cmake-out/${example_dir}
-    # set MAX_KERNEL_NUM=22: 19 primops, add, mul
     rm -rf ${build_dir}
+    local start_time=`date +%s.%N`
     retry cmake -DCMAKE_BUILD_TYPE=Release \
             -DMAX_KERNEL_NUM=22 \
-            -DEXECUTORCH_SELECT_OPS_LIST="aten::convolution.out,\
-aten::_native_batch_norm_legit_no_training.out,aten::hardtanh.out,aten::add.out,\
-aten::mean.out,aten::view_copy.out,aten::permute_copy.out,aten::addmm.out,\
-aten,aten::clone.out" \
+            -DEXECUTORCH_SELECT_OPS_LIST=${operator_name} \
             -DCMAKE_INSTALL_PREFIX=cmake-out \
             -DPYTHON_EXECUTABLE="$PYTHON_EXECUTABLE" \
             -B${build_dir} \
@@ -78,12 +76,13 @@ aten,aten::clone.out" \
 
     echo "Building ${example_dir}"
     cmake --build ${build_dir} -j9 --config Release
+    local end_time=`date +%s.%N`
+    local runtime=$( echo "$end_time-$start_time" | bc -l )
 
-    echo 'Running selective build test'
-    ${build_dir}/selective_build_test --model_path="./mv2.pte"
-
-    echo "Removing mv2.pte"
-    rm "./mv2.pte"
+    strip ${build_dir}/selective_build_test 
+    ls -lah ${build_dir}/selective_build_test
+    local STAT_OUTPUT=$(stat --format=%s ${build_dir}/selective_build_test)
+    echo "${operator_name},${STAT_OUTPUT},${runtime}" >> results.txt
 }
 
 test_cmake_select_ops_in_yaml() {
@@ -111,17 +110,18 @@ test_cmake_select_ops_in_yaml() {
 
 
 test_cmake_select_ops_in_model() {
-    local dtype_on=$1
-    local model_name="add_mul"
+    local dtype_select=$1
+    local model_name=$2
     local model_export_name="${model_name}.pte"
     echo "Exporting ${model_name}"
     ${PYTHON_EXECUTABLE} -m examples.portable.scripts.export --model_name="${model_name}"
     local example_dir=examples/dtype_selective_build
     local build_dir=cmake-out/${example_dir}
     rm -rf ${build_dir}
+    local start_time=`date +%s.%N`
     retry cmake -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" \
             -DEXECUTORCH_SELECT_OPS_FROM_MODEL="./${model_export_name}" \
-            -DEXECUTORCH_DTYPE_SELECTIVE_BUILD=${dtype_on} \
+            -DEXECUTORCH_DTYPE_SELECTIVE_BUILD=${dtype_select} \
             -DEXECUTORCH_OPTIMIZE_SIZE=ON \
             -DCMAKE_INSTALL_PREFIX=cmake-out \
             -DPYTHON_EXECUTABLE="$PYTHON_EXECUTABLE" \
@@ -130,13 +130,18 @@ test_cmake_select_ops_in_model() {
 
     echo "Building ${example_dir}"
     cmake --build ${build_dir} -j9 --config $CMAKE_BUILD_TYPE
-    
+    local end_time=`date +%s.%N`
+    local runtime=$( echo "$end_time-$start_time" | bc -l )
+
     strip ${build_dir}/selective_build_test 
-    ls -lah ${build_dir}/selective_build_test
-    echo "HELLO_WORLD-------------------------------------------------------"
-    STAT_OUTPUT=$(stat --format=%s ${build_dir}/selective_build_test)
-    echo "STAT_OUTPUT = ${STAT_OUTPUT}-------------------------------------------------------"
-    return $STAT_OUTPUT
+    local STAT_OUTPUT=$(stat --format=%s ${build_dir}/selective_build_test)
+
+    if [[ ${dtype_select} == "ON" ]]; then
+        local dtype_count=$(python3 get_number_dtypes_per_op.py)
+        echo "${model_name},False,False,${dtype_select},${STAT_OUTPUT},${runtime},${dtype_count}" >> results.txt
+    else
+        echo "${model_name},False,False,${dtype_select},${STAT_OUTPUT},${runtime}" >> results.txt
+    fi
 }
 
 if [[ -z $PYTHON_EXECUTABLE ]];
@@ -149,12 +154,126 @@ then
   CMAKE_BUILD_TYPE=Release
 fi
 
-cmake_install_executorch_lib $CMAKE_BUILD_TYPE
-#test_cmake_select_all_ops
-test_cmake_select_ops_in_model "OFF"
-add_mul_size=$?
-echo "RAN WITHOUT DTYPE SELECTION ------------------------"
-test_cmake_select_ops_in_model "ON"
-add_mul_dtype_size=$?
-echo "RAN WITH DTYPE SELECTION ------------------------"
-echo "For add_mul model, dtype selection helps binary size from ${add_mul_size}->${add_mul_dtype_size}"
+
+if [[ $1 == "cmake" ]];
+then
+    cmake_install_executorch_lib $CMAKE_BUILD_TYPE
+    #test_cmake_select_all_ops
+    #test_cmake_select_ops_in_list
+    #test_cmake_select_ops_in_yaml
+    #test_cmake_select_ops_in_model
+    #echo "OperatorName,StrippedBinarySize,CompilationTime(sec)" >> results.txt
+    operators=(
+        "aten::_native_batch_norm_legit_no_training.out" 
+        "aten::add.out" 
+        "aten::add.Scalar_out" 
+        "aten::addmm.out"
+        "aten::atan2.out"
+        "aten::bitwise_and.Scalar_out"
+        "aten::bitwise_and.Tensor_out"
+        "aten::bitwise_or.Scalar_out"
+        "aten::bitwise_or.Tensor_out"
+        "aten::bitwise_xor.Scalar_out"
+        "aten::bitwise_xor.Tensor_out"
+        "aten::clamp.out"
+        "aten::clamp.Tensor_out"
+        "aten::clone.out"
+        "aten::convolution.out"
+        "aten::copy.out"
+        "aten::copy_"
+        "aten::cumsum.out"
+        "aten::div.out"
+        "aten::div.out_mode"
+        "aten::div.Scalar_out"
+        "aten::div.Scalar_mode_out"
+        "aten::elu.out"
+        "aten::eq.Scalar_out"
+        "aten::eq.Tensor_out"
+        "aten::floor_divide.out"
+        "aten::fmod.Scalar_out"
+        "aten::fmod.Tensor_out"
+        "aten::glu.out"
+        "aten::ge.Scalar_out"
+        "aten::ge.Tensor_out"
+        "aten::gt.Scalar_out"
+        "aten::gt.Tensor_out"
+        "aten::hardtanh.out"
+        "aten::permute_copy.out"
+        "aten::le.Scalar_out"
+        "aten::le.Tensor_out"
+        "aten::logical_and.out"
+        "aten::logical_or.out"
+        "aten::logical_xor.out"
+        "aten::lt.Scalar_out"
+        "aten::lt.Tensor_out"
+        "aten::maximum.out"
+        "aten::mean.out"
+        "aten::minimum.out"
+        "aten::mul.out"
+        "aten::mul.Scalar_out"
+        "aten::native_dropout.out"
+        "aten::ne.Scalar_out"
+        "aten::ne.Tensor_out"
+        "aten::neg.out"
+        "aten::pow.Scalar_out"
+        "aten::pow.Tensor_Scalar_out"
+        "aten::pow.Tensor_Tensor_out"
+        "aten::sigmoid.out"
+        "aten::sub.out"
+        "aten::sub.Scalar_out"
+        "aten::sum.IntList_out"
+        "aten::remainder.Scalar_out"
+        "aten::remainder.Tensor_out"
+        "aten::rsub.Scalar_out"
+        "aten::view_as_real_copy.out"
+        "aten::view_copy.out"
+        "aten::where.self_out"
+    )
+    #for item in "${operators[@]}"; do
+    #    test_cmake_select_ops_in_list "$item"
+    #done
+    echo "Model,UseNoOps,IncludeAllOps,ModelDtypeSelect,StrippedBinarySize,CompilationTime(sec),OpsWith1Dtype,OpsWith2Dtypes,OpsWith3+Dtypes" >> results.txt
+        #"add"
+        #"mul"
+        #"linear"
+        #"add_mul"
+        #"softmax"
+        #"edsr"
+        #"emformer_join"
+        #"mv2"
+        #"mv2_untrained"
+        #"mv3"
+        #"w2l"
+        #"ic4"
+        #"resnet18"
+        #"resnet50"
+        #"efficient_sam"
+        #"qwen2_5"
+        #"phi_4_mini"
+    models=(
+        "dl3"
+        "emformer_transcribe"
+        "emformer_predict"
+        "llama2"
+        "llama"
+        "lstm"
+        "mobilebert"
+        "vit"
+        "ic3"
+        "llava"
+    )
+        #"llama3_2_vision_encoder"
+    #for item in "${models[@]}"; do
+    #    test_cmake_select_all_ops "$item"
+    #done
+    for item in "${models[@]}"; do
+        test_cmake_select_ops_in_model "ON" "$item"
+        test_cmake_select_ops_in_model "OFF" "$item"
+    done
+elif [[ $1 == "buck2" ]];
+then
+    test_buck2_select_all_ops
+    test_buck2_select_ops_in_list
+    test_buck2_select_ops_in_dict
+    test_buck2_select_ops_from_yaml
+fi
