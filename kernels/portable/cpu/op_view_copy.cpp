@@ -34,6 +34,7 @@ Tensor& view_copy_out(
       InvalidArgument,
       out);
 
+
   // Resize for dynamic shape
   ET_KERNEL_CHECK_MSG(
       ctx,
@@ -49,6 +50,8 @@ Tensor& view_copy_out(
 
   ET_KERNEL_CHECK(ctx, tensor_is_default_dim_order(self), InvalidArgument, out);
 
+  static constexpr const char op_name[] = "view_copy.out";
+
   ET_KERNEL_CHECK(
       ctx, check_view_copy_args(self, size_int64_t, out), InvalidArgument, out);
 
@@ -56,6 +59,7 @@ Tensor& view_copy_out(
     memcpy(out.mutable_data_ptr(), self.const_data_ptr(), self.nbytes());
   }
   return out;
+
 }
 
 } // namespace native
