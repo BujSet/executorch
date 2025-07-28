@@ -15,46 +15,12 @@
 // executorch/codegen/tools/gen_selected_op_variants.py
 #include "selected_op_variants.h"
 #else
+// dummy implementation
 inline constexpr bool should_include_kernel_dtype(
-  const char *operator_name,
-  executorch::aten::ScalarType scalar_type
+    const char* /*operator_name*/,
+    executorch::aten::ScalarType /*scalar_type*/
 ) {
-  return ((std::string_view(operator_name).compare("_softmax.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("add.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("addmm.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("any.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Bool))
- || ((std::string_view(operator_name).compare("bmm.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("clone.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("convolution.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("eq.Scalar_out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Bool || scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("expand_copy.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("full_like.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("gelu.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("logical_not.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Bool))
- || ((std::string_view(operator_name).compare("mm.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("mul.Scalar_out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("native_layer_norm.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("permute_copy.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("scalar_tensor.out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Float))
- || ((std::string_view(operator_name).compare("where.self_out") == 0)
-        && (scalar_type == executorch::aten::ScalarType::Bool || scalar_type == executorch::aten::ScalarType::Float));
+  return true;
 }
 #endif
 
