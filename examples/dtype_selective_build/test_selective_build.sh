@@ -232,36 +232,37 @@ then
     #for item in "${operators[@]}"; do
     #    test_cmake_select_ops_in_list "$item"
     #done
-    echo "Model,UseNoOps,IncludeAllOps,ModelDtypeSelect,StrippedBinarySize,CompilationTime(sec),OpsWith1Dtype,OpsWith2Dtypes,OpsWith3+Dtypes" >> results.txt
-        #"add"
-        #"mul"
-        #"linear"
-        #"add_mul"
-        #"softmax"
-        #"edsr"
-        #"emformer_join"
-        #"mv2"
-        #"mv2_untrained"
-        #"mv3"
-        #"w2l"
-        #"ic4"
-        #"resnet18"
-        #"resnet50"
-        #"efficient_sam"
-        #"qwen2_5"
-        #"phi_4_mini"
+    echo "Model,UseNoOps,IncludeAllOps,ModelDtypeSelect,StrippedBinarySize,CompilationTime(sec),NumOps,OpsWith1Dtype,OpsWith2Dtypes,OpsWith3+Dtypes" >> results.txt
     models=(
+        "add"
+        "mul"
+        "linear"
+        "add_mul"
+        "softmax"
+        "edsr"
+        "emformer_join"
+        "mv2"
+        "mv2_untrained"
+        "mv3"
+        "w2l"
+        "ic4"
+        "resnet18"
+        "resnet50"
+        "efficient_sam"
         "dl3"
         "emformer_transcribe"
         "emformer_predict"
-        "llama2"
-        "llama"
         "lstm"
         "mobilebert"
         "vit"
         "ic3"
         "llava"
     )
+        # Problematic models, dtype selective build is larger here for some reason
+        #"phi_4_mini"
+        #"llama2"
+        #"llama"
+        #"qwen2_5"
         #"llama3_2_vision_encoder"
     #for item in "${models[@]}"; do
     #    test_cmake_select_all_ops "$item"
@@ -270,6 +271,8 @@ then
         test_cmake_select_ops_in_model "ON" "$item"
         test_cmake_select_ops_in_model "OFF" "$item"
     done
+    qwen2_5_ops="aten::_softmax.out,aten::add.out,aten::any.out,aten::bmm.out,aten::cat.out,aten::clone.out,aten::embedding.out,aten::eq.Scalar_out,aten::expand_copy.out,aten::full_like.out,aten::logical_not.out,aten::mean.out,aten::mm.out,aten::mul.Scalar_out,aten::mul.out,aten::permute_copy.out,aten::rsqrt.out,aten::scalar_tensor.out,aten::select_copy.int_out,aten::sigmoid.out,aten::slice_copy.Tensor_out,aten::squeeze_copy.dims_out,aten::sub.out,aten::unsqueeze_copy.out,aten::where.self_out"
+    #test_cmake_select_ops_in_list "$qwen2_5_ops"
 elif [[ $1 == "buck2" ]];
 then
     test_buck2_select_all_ops

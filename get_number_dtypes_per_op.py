@@ -65,5 +65,5 @@ with open("cmake-out/examples/dtype_selective_build/select_build_lib/selected_op
     #print("input_text:" + str(text))
     ops = get_strings_from_parens_one_level(text)
     dtypes_dict = make_ops_dict(ops)
-    print(collate_dtype_counts(dtypes_dict))
+    print(str(len(dtypes_dict.keys())) + "," + collate_dtype_counts(dtypes_dict))
 
