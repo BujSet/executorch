@@ -1,5 +1,25 @@
 import matplotlib.pyplot as plt
 
+orderedModelNames =  [
+        "edsr",
+        "emformer_join",
+        "mv2",
+        "mv2_untrained",
+        "mv3",
+        "w2l",
+        "ic4",
+        "resnet18",
+        "resnet50",
+        "efficient_sam",
+        "dl3",
+        "emformer_transcribe",
+        "emformer_predict",
+        "lstm",
+        "mobilebert",
+        "vit",
+        "ic3",
+        "llava"
+    ]
 # plot operator binary sizes
 with open("results.txt", "r") as rf:
     lines = rf.readlines()
@@ -42,7 +62,7 @@ with open("results.txt", "r") as rf:
     dtypeSelectResults = [line for line in lines if len(line.split(","))>=6 and line.split(",")[2].strip()=="False" and line.split(",")[3].strip()=="ON"]
     dtypeSelectResults = [(line.split(",")[0], int(line.split(",")[4])) for line in dtypeSelectResults]
     
-    modelNames = sorted([name for (name, binSize) in allOpResults])
+    modelNames = orderedModelNames #sorted([name for (name, binSize) in allOpResults])
     baselines = [1.0 for _ in modelNames]
     opReduction = []
     dtypeReduction = []
@@ -94,7 +114,7 @@ with open("results.txt", "r") as rf:
     dtypeSelectResults = [line for line in lines if len(line.split(","))>=6 and line.split(",")[2].strip()=="False" and line.split(",")[3].strip()=="ON"]
     dtypeSelectResults = [(line.split(",")[0], float(line.split(",")[5])) for line in dtypeSelectResults]
     
-    modelNames = sorted([name for (name, binSize) in allOpResults])
+    modelNames = orderedModelNames #sorted([name for (name, binSize) in allOpResults])
     baselines = [1.0 for _ in modelNames]
     opReduction = []
     dtypeReduction = []
@@ -145,7 +165,7 @@ with open("results.txt", "r") as rf:
     dtypeSelectResults = [line for line in lines if len(line.split(","))>=6 and line.split(",")[2].strip()=="False" and line.split(",")[3].strip()=="ON"]
     dtypeSelectResults = [(line.split(",")[0], int(line.split(",")[4])) for line in dtypeSelectResults]
     
-    modelNames = sorted([name for (name, binSize) in allOpResults])
+    modelNames = orderedModelNames #sorted([name for (name, binSize) in allOpResults])
     baselines = [1.0 for _ in modelNames]
     opReduction = []
     dtypeReduction = []
@@ -193,7 +213,7 @@ with open("results.txt", "r") as rf:
     dtypeSel1Dtype = [(line.split(",")[0], int(line.split(",")[7])) for line in dtypeSel1Dtype]
     dtypeSel2Dtype = [line for line in lines if len(line.split(","))>=6 and line.split(",")[2].strip()=="False" and line.split(",")[3].strip()=="ON"]
     dtypeSel2Dtype = [(line.split(",")[0], int(line.split(",")[8])) for line in dtypeSel2Dtype]
-    modelNames = sorted([name for (name, binSize) in dtypeSel1Dtype])
+    modelNames = orderedModelNames #sorted([name for (name, binSize) in dtypeSel1Dtype])
     oneDtype = []
     twoDtypes = []
     for model in modelNames:
@@ -231,7 +251,7 @@ with open("results.txt", "r") as rf:
     lines = [line for line in lines if "OperatorName,StrippedBinarySize,CompilationTime(sec)" not in line]
     numOpResults = [line for line in lines if len(line.split(","))>=6 and line.split(",")[2].strip()=="False" and line.split(",")[3].strip()=="ON"]
     numOpResults = [(line.split(",")[0], int(line.split(",")[6])) for line in numOpResults]
-    modelNames = sorted([name for (name, binSize) in numOpResults])
+    modelNames = orderedModelNames #sorted([name for (name, binSize) in numOpResults])
     numOps = []
 
     for model in modelNames:
