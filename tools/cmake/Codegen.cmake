@@ -263,7 +263,16 @@ function(gen_operators_lib)
         )
 
         # Build selected_portable_kernels
-        list(TRANSFORM _portable_kernels__srcs PREPEND "${EXECUTORCH_ROOT}/")
+	message(STATUS "Before _kernels_util_all_deps__srcs: ${_kernels_util_all_deps__srcs}")
+        if(NOT ${_kernels_util_all_deps__srcs})
+            message(STATUS "Found _kernels_util_all_deps__srcs to be empty")
+            file(GLOB_RECURSE _kernels_util_all_deps__srcs  "${EXECUTORCH_DIR}/kernels/portable/cpu/util/*.cpp")
+            list(FILTER _kernels_util_all_deps__srcs EXCLUDE REGEX "${EXECUTORCH_DIR}/kernels/portable/cpu/util/test/.*")
+        else()
+            message(STATUS "Found _kernels_util_all_deps__srcs to be NOT empty")
+            list(TRANSFORM _kernels_util_all_deps__srcs PREPEND "${EXECUTORCH_ROOT}/")
+        endif()
+        message(STATUS "After _kernels_util_all_deps__srcs: ${_kernels_util_all_deps__srcs}")
         add_library(selected_portable_kernels ${_portable_kernels__srcs})
         target_link_libraries(
           selected_portable_kernels PRIVATE executorch_core
