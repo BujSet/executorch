@@ -264,7 +264,7 @@ function(gen_operators_lib)
 
         # Build selected_portable_kernels
 	message(STATUS "Before _portable_kernels__srcs: ${_portable_kernels__srcs}")
-	list(LENGTH  ${_portable_kernels__srcs} LIST_LENGTH)
+	list(LENGTH  _portable_kernels__srcs LIST_LENGTH)
 	message(STATUS "Before _portable_kernels__srcs has ${LIST_LENGTH} elements")
         if(NOT ${_portable_kernels__srcs})
             message(STATUS "Found _portable_kernels__srcs to be empty")
