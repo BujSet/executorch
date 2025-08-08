@@ -264,9 +264,9 @@ function(gen_operators_lib)
 
         # Build selected_portable_kernels
 	message(STATUS "Before _portable_kernels__srcs: ${_portable_kernels__srcs}")
-	list(LENGTH  _portable_kernels__srcs LIST_LENGTH)
-	message(STATUS "Before _portable_kernels__srcs has ${LIST_LENGTH} elements")
-        if(NOT ${_portable_kernels__srcs})
+	list(LENGTH  _portable_kernels__srcs num_kernel_srcs)
+	message(STATUS "Before _portable_kernels__srcs has ${num_kernel_srcs} elements")
+	if(num_kernel_srcs EQUAL 0)
             message(STATUS "Found _portable_kernels__srcs to be empty")
             file(GLOB_RECURSE _portable_kernels__srcs  "${EXECUTORCH_DIR}/kernels/portable/cpu/op_*.cpp")
             list(FILTER _portable_kernels__srcs EXCLUDE REGEX "${EXECUTORCH_DIR}/kernels/portable/cpu/util/test/.*")
