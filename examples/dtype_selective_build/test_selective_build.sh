@@ -38,7 +38,7 @@ test_cmake_select_all_ops() {
     local model_export_name="${model_name}.pte"
     echo "Exporting ${model_name}"
     ${PYTHON_EXECUTABLE} -m examples.portable.scripts.export --model_name="${model_name}"
-    local example_dir=examples/dtype_selective_build
+    local example_dir=examples/selective_build/basic
     local build_dir=cmake-out/${example_dir}
     rm -rf ${build_dir}
     local start_time=`date +%s.%N`
@@ -52,7 +52,7 @@ test_cmake_select_all_ops() {
     echo "Building ${example_dir}"
     cmake --build ${build_dir} -j9 --config Release
     local end_time=`date +%s.%N`
-    local runtime=$( echo "$end_time-$start_time" | bc -l )
+    local runtime=$(awk "BEGIN {print $end_time - $start_time}")
     
     strip ${build_dir}/selective_build_test 
     ls -lah ${build_dir}/selective_build_test
@@ -62,7 +62,7 @@ test_cmake_select_all_ops() {
 
 test_cmake_select_ops_in_list() {
     local operator_name=$1
-    local example_dir=examples/dtype_selective_build
+    local example_dir=examples/selective_build/basic
     local build_dir=cmake-out/${example_dir}
     rm -rf ${build_dir}
     local start_time=`date +%s.%N`
@@ -73,11 +73,10 @@ test_cmake_select_ops_in_list() {
             -DPYTHON_EXECUTABLE="$PYTHON_EXECUTABLE" \
             -B${build_dir} \
             ${example_dir}
-
     echo "Building ${example_dir}"
     cmake --build ${build_dir} -j9 --config Release
     local end_time=`date +%s.%N`
-    local runtime=$( echo "$end_time-$start_time" | bc -l )
+    local runtime=$(awk "BEGIN {print $end_time - $start_time}")
 
     strip ${build_dir}/selective_build_test 
     ls -lah ${build_dir}/selective_build_test
@@ -115,7 +114,7 @@ test_cmake_select_ops_in_model() {
     local model_export_name="${model_name}.pte"
     echo "Exporting ${model_name}"
     ${PYTHON_EXECUTABLE} -m examples.portable.scripts.export --model_name="${model_name}"
-    local example_dir=examples/dtype_selective_build
+    local example_dir=examples/selective_build/basic
     local build_dir=cmake-out/${example_dir}
     rm -rf ${build_dir}
     local start_time=`date +%s.%N`
@@ -131,7 +130,7 @@ test_cmake_select_ops_in_model() {
     echo "Building ${example_dir}"
     cmake --build ${build_dir} -j9 --config $CMAKE_BUILD_TYPE
     local end_time=`date +%s.%N`
-    local runtime=$( echo "$end_time-$start_time" | bc -l )
+    local runtime=$(awk "BEGIN {print $end_time - $start_time}")
 
     strip ${build_dir}/selective_build_test 
     local STAT_OUTPUT=$(stat --format=%s ${build_dir}/selective_build_test)
@@ -159,10 +158,7 @@ if [[ $1 == "cmake" ]];
 then
     cmake_install_executorch_lib $CMAKE_BUILD_TYPE
     #test_cmake_select_all_ops
-    #test_cmake_select_ops_in_list
     #test_cmake_select_ops_in_yaml
-    #test_cmake_select_ops_in_model
-    #echo "OperatorName,StrippedBinarySize,CompilationTime(sec)" >> results.txt
     operators=(
         "aten::_native_batch_norm_legit_no_training.out" 
         "aten::add.out" 
@@ -229,10 +225,10 @@ then
         "aten::view_copy.out"
         "aten::where.self_out"
     )
+    #echo "OperatorName,StrippedBinarySize,CompilationTime(sec)" >> results.txt
     #for item in "${operators[@]}"; do
     #    test_cmake_select_ops_in_list "$item"
     #done
-    echo "Model,UseNoOps,IncludeAllOps,ModelDtypeSelect,StrippedBinarySize,CompilationTime(sec),NumOps,OpsWith1Dtype,OpsWith2Dtypes,OpsWith3+Dtypes" >> results.txt
     models=(
         "add"
         "mul"
@@ -264,6 +260,7 @@ then
         #"llama"
         #"qwen2_5"
         #"llama3_2_vision_encoder"
+    #echo "Model,UseNoOps,IncludeAllOps,ModelDtypeSelect,StrippedBinarySize,CompilationTime(sec),NumOps,OpsWith1Dtype,OpsWith2Dtypes,OpsWith3+Dtypes" >> results.txt
     #for item in "${models[@]}"; do
     #    test_cmake_select_all_ops "$item"
     #done
