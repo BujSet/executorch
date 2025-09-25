@@ -260,10 +260,10 @@ then
         #"llama"
         #"qwen2_5"
         #"llama3_2_vision_encoder"
-    #echo "Model,UseNoOps,IncludeAllOps,ModelDtypeSelect,StrippedBinarySize,CompilationTime(sec),NumOps,OpsWith1Dtype,OpsWith2Dtypes,OpsWith3+Dtypes" >> results.txt
-    #for item in "${models[@]}"; do
-    #    test_cmake_select_all_ops "$item"
-    #done
+    echo "Model,UseNoOps,IncludeAllOps,ModelDtypeSelect,StrippedBinarySize,CompilationTime(sec),NumOps,OpsWith1Dtype,OpsWith2Dtypes,OpsWith3+Dtypes" >> results.txt
+    for item in "${models[@]}"; do
+        test_cmake_select_all_ops "$item"
+    done
     for item in "${models[@]}"; do
         test_cmake_select_ops_in_model "ON" "$item"
         test_cmake_select_ops_in_model "OFF" "$item"
