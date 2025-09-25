@@ -124,6 +124,69 @@ with open("results.txt", "r") as rf:
     plt.savefig('dtype_selective_build.pdf', format='pdf')
     plt.close()
 
+with open("results.txt", "r") as rf:
+    lines = rf.readlines()
+    lines = [line for line in lines if "aten::" not in line]
+    lines = [line for line in lines if "OperatorName,StrippedBinarySize,CompilationTime(sec)" not in line]
+    allOpResults = [line for line in lines if len(line.split(","))==6 and line.split(",")[2].strip()=="True"]
+    allOpResults = [(line.split(",")[0], int(line.split(",")[4])) for line in allOpResults]
+    opSelectResults = [line for line in lines if len(line.split(","))==6 and line.split(",")[2].strip()=="False" and line.split(",")[3].strip()=="OFF"]
+    opSelectResults = [(line.split(",")[0], int(line.split(",")[4])) for line in opSelectResults]
+    dtypeSelectResults = [line for line in lines if len(line.split(","))>=6 and line.split(",")[2].strip()=="False" and line.split(",")[3].strip()=="ON"]
+    dtypeSelectResults = [(line.split(",")[0], int(line.split(",")[4])) for line in dtypeSelectResults]
+    
+    modelNames = copy.deepcopy(orderedModelNames) #sorted([name for (name, binSize) in allOpResults])
+    baselines = [1.0 for _ in modelNames]
+    opReduction = []
+    dtypeReduction = []
+    for model in modelNames:
+        baselineSize = 0
+        opSelSize = 0
+        dtypeSelSize = 0
+
+        for (searchModel, searchSize) in allOpResults:
+            if model == searchModel:
+                baselineSize = searchSize
+        assert(baselineSize > 0)
+        for (searchModel, searchSize) in opSelectResults:
+            if model == searchModel:
+                opSelSize = searchSize
+        assert(opSelSize > 0)
+        for (searchModel, searchSize) in dtypeSelectResults:
+            if model == searchModel:
+                dtypeSelSize = searchSize
+        assert(dtypeSelSize > 0)
+        opReduction.append(float(opSelSize)/float(baselineSize))
+#        dtypeReduction.append(float(dtypeSelSize)/float(baselineSize))
+        dtypeReduction.append(float(dtypeSelSize)/float(opSelSize))
+    harmBaseline = calcHarmonicMean(baselines)
+    harmOpReduction = calcHarmonicMean(opReduction)
+    harmDtypeReduction = calcHarmonicMean(dtypeReduction)
+    
+    print("Dtype Selection Binary Sizes:" + str(harmBaseline) + "," + str(harmOpReduction) + "," + str(harmDtypeReduction))
+#    print("Dtype Selection Binary Sizes:" + str(harmBaseline) + "," + str(harmDtypeReduction))
+    modelNames.append("Harmonic Mean")
+    baselines.append(harmBaseline)
+    opReduction.append(harmOpReduction)
+    dtypeReduction.append(harmDtypeReduction)
+    fig, ax = plt.subplots(figsize=(20,6))
+    plt.grid(axis='y', zorder=0)
+    w = 1.0 / 3.5
+    ax.bar([i-(w/2.0) for i in range(len(modelNames))], baselines, width=w, zorder=3, label="Operator Selective Build")#, edgecolor='black')#, hatch="/")
+#    ax.bar([i-0.00 for i in range(len(modelNames))], opReduction, width=w, zorder=3, label="Operator Selective Build", edgecolor='black', hatch="\\")
+    ax.bar([i+(w/2.0) for i in range(len(modelNames))], dtypeReduction, width=w, zorder=3, label="Dtype Selective Build")#, edgecolor='black')#, hatch="x")
+    ax.axvline(len(modelNames) - 1.5, color ='black', linestyle=':', lw = 2, alpha = 0.75)
+    ax.set_xlabel('Model')
+    ax.set_xticks([i for i in range(len(modelNames))], modelNames, rotation=65)
+    ax.set_ylabel('Relative Binary Size')
+    #ax.set_yticks([i for i in range(0,500000,100000)], [str(int(i/1000)) for i in range(0,500000, 100000)], rotation=45)
+    ax.legend(loc='upper right')
+    ax.set_title("Build Size Reduction with Dtype Selection")
+    plt.margins(x=0.01)
+    plt.tight_layout()
+    plt.savefig('dtype_selective_build_operator_baseline.pdf', format='pdf')
+    plt.close()
+
 # Plot compilation times
 with open("results.txt", "r") as rf:
     lines = rf.readlines()
