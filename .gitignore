@@ -71,3 +71,16 @@ xcuserdata/
 # Windows
 *.dll
 *.pyd
+
+# Bujji Artifacts
+dtype_diversity.pdf
+dtype_diversity.png
+ops_per_model.pdf
+ops_per_model.png
+operator_binary_sizes.pdf
+operator_binary_sizes.png
+dtype_selective_build_operator_baseline.pdf
+dtype_selective_build_operator_baseline.png
+dtype_selective_build.pdf
+dtype_selective_build.png
+dtype_selective_build_time.pdf
